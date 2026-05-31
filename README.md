@@ -1,6 +1,7 @@
 <a id="top"></a>
 
 # Tổng Quan Dự Án Data Logger ESP32-C6
+LINK DATA Google Sheet: https://drive.google.com/drive/folders/1tRtYwRLFDgoCqyweKTJ5jtmrRs-Uq_rW?usp=sharing
 
 ## Mục Lục
 
