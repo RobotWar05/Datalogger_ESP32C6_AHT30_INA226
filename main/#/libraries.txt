@@ -1,0 +1,15 @@
+1/ Thư viện
+Mở Arduino IDE -> Libraries ở cột bên trái màn hình. Gõ tên thư viện vào ô tìm kiếm và nhấn "Install".
+
+ - Thư viện cho màn hình OLED: Adafruit SSD1306 - Tác giả: Adafruit
+			       Adafruit GFX Library - Tác giả: Adafruit
+
+
+ - Thư viện cảm biến nhiệt độ/độ ẩm (AHT25): Adafruit AHTX0 - Tác giả: Adafruit
+
+
+2/ Board
+
+Vào Tools -> Board -> Boards Manager
+
+Gõ "esp32" - Cài đặt "esp32" của "Espressif Systems" 

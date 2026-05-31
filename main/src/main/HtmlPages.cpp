@@ -1,0 +1,1276 @@
+#include "HtmlPages.h"
+
+const char index_html[] PROGMEM = R"rawliteral(
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HỆ THỐNG GIÁM SÁT</title>
+
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+
+    <style>
+        
+        :root {
+            --color-bg: #dbeafe;
+            --color-card: #f0f9ff;
+            --color-text-main: #1e293b;
+            --color-text-sub: #475569;
+            --color-border: #bfdbfe;
+            --color-primary: #2563eb;
+            --color-primary-hover: #1d4ed8;
+
+            --status-ok: #15803d;
+            --status-hot: #b91c1c;
+            --status-cold: #1d4ed8;
+
+            --accent-fan: #059669;
+            --accent-light: #ca8a04;
+
+            --shadow-soft: 0 4px 20px -5px rgba(30, 58, 138, 0.15);
+            --focus-ring: 0 0 0 3px rgba(37, 99, 235, 0.3);
+        }
+
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text-main);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 30px;
+        }
+
+        
+        header {
+            width: 100%;
+            max-width: 740px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+            flex-wrap: nowrap;
+        }
+
+        .brand-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand {
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: #1e3a8a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .last-update {
+            font-size: 0.8rem;
+            color: var(--color-text-sub);
+            margin-top: 5px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: #16a34a;
+            border-radius: 50%;
+            box-shadow: 0 0 5px #16a34a;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+            max-width: 740px;
+        }
+
+        .chart-section {
+            width: 100%;
+            max-width: 740px;
+            margin-top: 20px;
+        }
+
+        footer {
+            margin-top: 50px;
+            font-size: 0.9rem;
+            color: var(--color-text-sub);
+            opacity: 0.8;
+            font-weight: 600;
+        }
+
+        
+        .card {
+            background: var(--color-card);
+            border-radius: 24px;
+            padding: 25px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--color-border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        
+        .display-card {
+            height: 220px;
+        }
+
+        .display-card .label {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--color-text-sub);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .display-card .value-container {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .display-card .value {
+            font-size: 5rem;
+            font-weight: 700;
+            line-height: 1;
+            color: #0f172a;
+            letter-spacing: -1px;
+            transition: color 0.5s ease;
+        }
+
+        .display-card .unit {
+            font-size: 3.5rem;
+            font-weight: 800;
+            transform: translateY(-5px);
+            color: #0f172a;
+            transition: color 0.5s ease;
+        }
+
+        .metric-label {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--color-text-sub);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .voltage-card .icon,
+        .current-card .icon,
+        .voltage-card>.label,
+        .current-card>.label {
+            display: none;
+        }
+
+        
+        .btn-card {
+            height: 160px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            background: #e0f2fe;
+            border: 2px solid transparent;
+        }
+
+        .btn-card:hover {
+            background: #f0f9ff;
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(37, 99, 235, 0.2);
+        }
+
+        .btn-card:active {
+            transform: scale(0.98);
+        }
+
+        .btn-card .icon {
+            width: 70px;
+            height: 70px;
+            margin-bottom: 10px;
+            fill: var(--color-text-sub);
+            transition: all 0.4s;
+        }
+
+        .btn-card .status {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--color-text-sub);
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        .btn-card .label {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            color: var(--color-text-sub);
+            opacity: 0.8;
+        }
+
+        
+        .btn-card.active {
+            border-color: #3b82f6;
+            background: #ffffff;
+        }
+
+        .btn-card.fan.active .icon {
+            fill: var(--accent-fan);
+            animation: spin 0.8s linear infinite;
+        }
+
+        .btn-card.fan.active .status {
+            color: var(--accent-fan);
+        }
+
+        .btn-card.fan.active {
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.2);
+            border-color: var(--accent-fan);
+        }
+
+        .btn-card.light.active .icon {
+            fill: var(--accent-light);
+            filter: drop-shadow(0 0 10px rgba(234, 179, 8, 0.4));
+        }
+
+        .btn-card.light.active .status {
+            color: var(--accent-light);
+        }
+
+        .btn-card.light.active {
+            box-shadow: 0 0 25px rgba(234, 179, 8, 0.2);
+            border-color: var(--accent-light);
+        }
+
+        .btn-card.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            filter: grayscale(100%);
+            border: 2px dashed #94a3b8;
+            background: #cbd5e1;
+        }
+
+        
+        .status-badge {
+            grid-column: span 2;
+            width: 100%;
+            padding: 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            background: rgba(255, 255, 255, 0.6);
+            color: var(--color-text-sub);
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--color-border);
+            transition: all 0.5s ease;
+        }
+
+        
+        .chart-container {
+            padding: 25px;
+        }
+
+        .chart-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .chart-header-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #1e3a8a;
+            text-transform: uppercase;
+        }
+
+        .chart-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .chart-select {
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--color-border);
+            font-family: 'Montserrat';
+            font-weight: 600;
+            color: #1e3a8a;
+            background: #fff;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--color-text-sub);
+            transition: 0.3s;
+            padding: 5px;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .icon-btn:hover {
+            color: var(--color-text-main);
+            transform: rotate(90deg);
+        }
+
+        .charts-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .sub-chart-box {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 8px;
+            border: 1px solid #e2e8f0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sub-chart-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 350px;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        
+        .toggle-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.4);
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ef4444;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        input:checked+.slider {
+            background-color: #22c55e !important;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(24px);
+        }
+
+        
+        .text-normal {
+            color: var(--status-ok) !important;
+        }
+
+        .text-hot {
+            color: var(--status-hot) !important;
+        }
+
+        .text-cold {
+            color: var(--status-cold) !important;
+        }
+
+        .badge-normal {
+            background: #dcfce7;
+            color: var(--status-ok);
+            border-color: #86efac;
+        }
+
+        .badge-hot {
+            background: #fee2e2;
+            color: var(--status-hot);
+            border-color: #fca5a5;
+            animation: pulse 2s infinite;
+        }
+
+        .badge-cold {
+            background: #dbeafe;
+            color: var(--status-cold);
+            border-color: #93c5fd;
+        }
+
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(30, 58, 138, 0.4);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background: var(--color-card);
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid var(--color-border);
+            box-shadow: 0 20px 50px rgba(30, 58, 138, 0.2);
+        }
+
+        .modal-header {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #1e3a8a;
+            text-align: center;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #1e293b;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            font-family: 'Montserrat';
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            transition: 0.2s;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .btn-save {
+            background: #2563eb;
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-save:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .btn-cancel {
+            background: transparent;
+            border: 1px solid #dc2626;
+            color: #dc2626;
+        }
+
+        .btn-cancel:hover {
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+
+        .btn-reset {
+            width: 100%;
+            margin-top: 22px;
+            padding: 16px;
+            background: #dc2626;
+            color: #ffffff;
+            border: 1px solid #b91c1c;
+            box-shadow: 0 4px 14px rgba(220, 38, 38, 0.28);
+        }
+
+        .btn-reset:hover {
+            background: #b91c1c;
+            transform: translateY(-1px);
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.02);
+                opacity: 0.8;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        
+        @media (min-width: 768px) {
+            .brand {
+                font-size: 1.5rem;
+                letter-spacing: 1px;
+            }
+
+            .last-update {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .dashboard {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .display-card {
+                height: 160px;
+            }
+
+            .display-card .value {
+                font-size: 3.5rem;
+            }
+
+            .display-card .unit {
+                font-size: 2.2rem;
+            }
+
+            .btn-card {
+                height: 150px;
+            }
+
+            .btn-card .icon {
+                width: 60px;
+                height: 60px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .chart-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .chart-controls {
+                width: 100%;
+                justify-content: space-between;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    
+    <header>
+        <div class="brand-container">
+            <div class="brand">HỆ THỐNG GIÁM SÁT<br>ĐỘ ẤM NHIỆT ĐỘ - ESP32</div>
+            <div class="last-update"><span class="dot"></span><span id="updateTime">Cập nhật lúc: --:--:--</span></div>
+        </div>
+        <div class="header-controls">
+            
+            <div class="toggle-wrapper">
+                <span id="modeLabel">MAN</span>
+                <label class="switch">
+                    <input type="checkbox" id="autoToggle" onchange="toggleMode()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <button class="icon-btn" onclick="ui.openSettings()" title="Cài đặt">
+                <svg viewBox="0 0 24 24" fill="currentColor" style="width:28px; height:28px;">
+                    <path
+                        d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    
+    <div class="dashboard">
+        <div id="tempBadge" class="status-badge badge-normal">TRẠNG THÁI ỔN ĐỊNH</div>
+
+        <div class="card display-card temp-card">
+            <div class="label">Nhiệt Độ</div>
+            <div class="value-container"><span class="value" id="temp">--</span><span class="unit">°C</span></div>
+        </div>
+
+        <div class="card display-card hum-card">
+            <div class="label">Độ Ẩm</div>
+            <div class="value-container"><span class="value text-cold" id="hum">--</span><span
+                    class="unit text-cold">%</span></div>
+        </div>
+
+        <div class="card display-card voltage-card">
+            <div class="metric-label">ĐIỆN ÁP</div>
+            <svg class="icon" viewBox="0 0 24 24">
+                <path
+                    d="M12,11c-0.55,0-1,0.45-1,1s0.45,1,1,1s1-0.45,1-1S12.55,11,12,11z M12,2C7.05,2,2.92,5.63,2.15,10.37 C3.88,8.85,6.07,8,8.25,8c0.2,0,0.41,0.01,0.61,0.02C9.4,5.4,11.2,3.2,12,3c0.8,0.2,2.6,2.4,3.14,5.02 C15.34,8.01,15.55,8,15.75,8c2.18,0,4.37,0.85,6.1,2.37C21.08,5.63,16.95,2,12,2z M21.85,13.63C20.12,15.15,17.93,16,15.75,16 c-0.2,0-0.41-0.01-0.61-0.02C14.6,18.6,12.8,20.8,12,21c-0.8-0.2-2.6-2.4-3.14-5.02C8.66,15.99,8.45,16,8.25,16 c-2.18,0-4.37-0.85-6.1-2.37C2.92,18.37,7.05,22,12,22C16.95,22,21.08,18.37,21.85,13.63z" />
+            </svg>
+            <div class="value-container"><span class="value text-normal" id="voltage">--</span><span class="unit text-normal">V</span></div>
+            <div class="label">QUẠT TỰ ĐỘNG</div>
+        </div>
+
+        <div class="card display-card current-card">
+            <div class="metric-label">DÒNG ĐIỆN</div>
+            <svg class="icon" viewBox="0 0 24 24">
+                <path
+                    d="M9,21c0,0.55,0.45,1,1,1h4c0.55,0,1-0.45,1-1v-1H9V21z M12,2C8.13,2,5,5.13,5,9c0,2.38,1.19,4.47,3,5.74V17c0,0.55,0.45,1,1,1h6 c0.55,0,1-0.45,1-1v-2.26c1.81-1.27,3-3.36,3-5.74C19,5.13,15.87,2,12,2z" />
+            </svg>
+            <div class="value-container"><span class="value text-cold" id="current">--</span><span class="unit text-cold">A</span></div>
+            <div class="label">ĐÈN PHÒNG</div>
+        </div>
+    </div>
+
+    
+    <div class="chart-section">
+        <div class="card chart-container">
+            <div class="chart-header">
+                <div class="chart-header-title">BIỂU ĐỒ GIÁM SÁT</div>
+                <div class="chart-controls">
+                    <div>
+                        <select id="updateInterval" class="chart-select" onchange="dataManager.restartInterval()">
+                            <option value="5" selected>5s</option>
+                            <option value="10">10s</option>
+                            <option value="30">30s</option>
+                            <option value="60">1 phút</option>
+                        </select>
+                    </div>
+
+                    <label class="chart-select"
+                        style="display:flex; align-items:center; gap:8px; cursor:pointer; user-select:none;">
+                        <input type="checkbox" id="autoScrollCheck" checked onchange="chartManager.toggleAutoScroll()"
+                            style="width:16px; height:16px; cursor:pointer;">
+                        <span style="font-size: 0.85rem; font-weight:700;">AUTO</span>
+                    </label>
+
+                    <div style="display:flex; align-items:center; gap:5px;">
+                        <div id="statusDot"
+                            style="width:10px; height:10px; background:#22c55e; border-radius:50%; transition: opacity 0.2s;">
+                        </div>
+                        <span style="font-size:0.7rem; font-weight:700; color:#22c55e;">LIVE</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-wrapper">
+                <div class="sub-chart-box">
+                    <div class="sub-chart-title" style="color: #b91c1c;">Nhiệt độ (°C)</div>
+                    <div class="canvas-container"><canvas id="tempChart"></canvas></div>
+                </div>
+                <div class="sub-chart-box">
+                    <div class="sub-chart-title" style="color: #1d4ed8;">Độ ẩm (%)</div>
+                    <div class="canvas-container"><canvas id="humChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">CÀI ĐẶT NGƯỠNG NHIỆT</div>
+            <div class="form-group"><label>Ngưỡng Cao:</label><input type="number" id="inputHigh"></div>
+            <div class="form-group"><label>Ngưỡng Thấp:</label><input type="number" id="inputLow"></div>
+            <div class="form-group"><label>Google Apps Script ID:</label><input type="text" id="inputGas"></div>
+            <button id="factoryResetBtn" class="btn btn-reset" onclick="ui.factoryReset()">RESET ESP32 / ĐỔI WIFI</button>
+            <div class="modal-actions">
+                <button class="btn btn-cancel" onclick="ui.closeSettings()">HỦY</button>
+                <button class="btn btn-save" onclick="ui.saveSettings()">LƯU</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>ESP32 - AHT30</footer>
+
+    <script>
+        
+        const appConfig = {
+            colors: {
+                temp: { border: '#b91c1c', bg: 'rgba(185, 28, 28, 0.1)' },
+                hum: { border: '#1d4ed8', bg: 'rgba(29, 78, 216, 0.1)' },
+                grid: 'rgba(100, 116, 139, 0.8)'
+            },
+            limits: { dataPoints: 2000, minZoomSpan: 5 }
+        };
+
+        let appState = {
+            settings: { high: 32, low: 18, gas: "" },
+            dataBuffer: { labels: [], temp: [], hum: [] },
+            charts: { temp: null, hum: null },
+            autoScroll: { enabled: true, timer: null, currentZoomSpan: 20, lastInteraction: 0 },
+            lastGood: { temperature: null, humidity: null, voltage: null, current: null }
+        };
+
+        
+        const chartManager = {
+            init: function () {
+                const crosshairPlugin = {
+                    id: 'crosshair',
+                    afterDatasetsDraw: (chart) => {
+                        const { ctx, tooltip, chartArea: { top, bottom, left } } = chart;
+                        if (tooltip._active && tooltip._active.length) {
+                            const activePoint = tooltip._active[0];
+                            const x = activePoint.element.x;
+                            const y = activePoint.element.y;
+                            ctx.save();
+                            ctx.beginPath();
+                            ctx.lineWidth = 1;
+                            ctx.strokeStyle = appConfig.colors.grid;
+                            ctx.setLineDash([5, 5]);
+                            ctx.moveTo(x, y); ctx.lineTo(x, bottom);
+                            ctx.moveTo(x, y); ctx.lineTo(left, y);
+                            ctx.stroke();
+                            ctx.restore();
+                        }
+                    }
+                };
+                Chart.register(crosshairPlugin);
+
+                const commonOptions = (unit) => ({
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        x: { type: 'category', ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 8 } },
+                        y: { display: true }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            animation: false,
+                            callbacks: { label: (c) => (c.dataset.label || '') + ': ' + c.parsed.y.toFixed(2) + ' ' + unit }
+                        },
+                        zoom: {
+                            pan: {
+                                enabled: true, mode: 'x', modifierKey: null,
+                                onPan: () => {
+                                    appState.autoScroll.enabled = false;
+                                    document.getElementById("autoScrollCheck").checked = false;
+                                    appState.autoScroll.lastInteraction = Date.now();
+                                }
+                            },
+                            zoom: {
+                                wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x',
+                                onZoom: ({ chart }) => {
+                                    appState.autoScroll.lastInteraction = Date.now();
+                                    this.updateZoomSpan(chart);
+                                }
+                            },
+                            limits: { x: { min: 0 } }
+                        }
+                    },
+                    elements: {
+                        point: { radius: 3, hoverRadius: 6, backgroundColor: 'white', borderWidth: 2 }
+                    }
+                });
+
+                const ctxT = document.getElementById('tempChart').getContext('2d');
+                const ctxH = document.getElementById('humChart').getContext('2d');
+
+                appState.charts.temp = new Chart(ctxT, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Nhiệt độ',
+                            data: [],
+                            borderColor: appConfig.colors.temp.border,
+                            backgroundColor: appConfig.colors.temp.bg,
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.1
+                        }]
+                    },
+                    options: { ...commonOptions('°C'), scales: { y: { suggestedMin: 20, suggestedMax: 35 } } }
+                });
+
+                appState.charts.hum = new Chart(ctxH, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Độ ẩm',
+                            data: [],
+                            borderColor: appConfig.colors.hum.border,
+                            backgroundColor: appConfig.colors.hum.bg,
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.1
+                        }]
+                    },
+                    options: { ...commonOptions('%'), scales: { y: { suggestedMin: 40, suggestedMax: 90 } } }
+                });
+            },
+
+            updateZoomSpan: function (chart) {
+                const scale = chart.scales.x;
+                let minIdx = -1, maxIdx = -1;
+
+                if (typeof scale.min === 'number') minIdx = Math.round(scale.min);
+                else minIdx = appState.dataBuffer.labels.indexOf(scale.min);
+
+                if (typeof scale.max === 'number') maxIdx = Math.round(scale.max);
+                else maxIdx = appState.dataBuffer.labels.indexOf(scale.max);
+
+                if (minIdx !== -1 && maxIdx !== -1) {
+                    appState.autoScroll.currentZoomSpan = maxIdx - minIdx;
+                    if (appState.autoScroll.currentZoomSpan < appConfig.limits.minZoomSpan) {
+                        appState.autoScroll.currentZoomSpan = appConfig.limits.minZoomSpan;
+                    }
+                }
+            },
+
+            toggleAutoScroll: function () {
+                appState.autoScroll.enabled = document.getElementById("autoScrollCheck").checked;
+                if (!appState.charts.temp || !appState.charts.hum) return;
+                if (appState.autoScroll.enabled) {
+                    this.updateZoomSpan(appState.charts.temp);
+                    this.processNewData(
+                        appState.dataBuffer.temp[appState.dataBuffer.temp.length - 1],
+                        appState.dataBuffer.hum[appState.dataBuffer.hum.length - 1],
+                        true
+                    );
+                }
+            },
+
+            processNewData: function (t, h, forceUpdate = false) {
+                if (!appState.charts.temp || !appState.charts.hum) return;
+                if (!forceUpdate) {
+                    const now = new Date().toLocaleTimeString('vi-VN');
+                    ui.updateTimestamp(now);
+                    ui.blinkStatus();
+
+                    appState.dataBuffer.labels.push(now);
+                    appState.dataBuffer.temp.push(t);
+                    appState.dataBuffer.hum.push(h);
+
+                    if (appState.dataBuffer.labels.length > appConfig.limits.dataPoints) {
+                        appState.dataBuffer.labels.shift();
+                        appState.dataBuffer.temp.shift();
+                        appState.dataBuffer.hum.shift();
+                    }
+                }
+
+                appState.charts.temp.data.labels = appState.dataBuffer.labels;
+                appState.charts.temp.data.datasets[0].data = appState.dataBuffer.temp;
+                appState.charts.hum.data.labels = appState.dataBuffer.labels;
+                appState.charts.hum.data.datasets[0].data = appState.dataBuffer.hum;
+
+                if (appState.autoScroll.enabled) {
+                    if (Date.now() - appState.autoScroll.lastInteraction < 1000) {
+                    } else {
+                        const total = appState.dataBuffer.labels.length;
+                        const newMax = total - 1;
+                        const newMin = Math.max(0, newMax - appState.autoScroll.currentZoomSpan);
+
+                        const labelMin = appState.dataBuffer.labels[newMin];
+                        const labelMax = appState.dataBuffer.labels[newMax];
+
+                        if (labelMin) {
+                            appState.charts.temp.options.scales.x.min = labelMin;
+                            appState.charts.temp.options.scales.x.max = labelMax || labelMin;
+                            appState.charts.hum.options.scales.x.min = labelMin;
+                            appState.charts.hum.options.scales.x.max = labelMax || labelMin;
+                        }
+                    }
+                }
+
+                appState.charts.temp.update('none');
+                appState.charts.hum.update('none');
+            }
+        };
+
+        
+        const ui = {
+            updateTimestamp: (time) => {
+                document.getElementById("updateTime").innerText = "Cập nhật lúc: " + time;
+            },
+            blinkStatus: () => {
+                const el = document.getElementById("statusDot");
+                if (el) el.style.opacity = (el.style.opacity === '1' ? '0.5' : '1');
+            },
+            updateDashboard: (data) => {
+                const elTemp = document.getElementById("temp");
+                const elUnit = document.querySelector(".temp-card .unit");
+                const elBadge = document.getElementById("tempBadge");
+
+                const readNumber = (value, fallback) => {
+                    const n = Number(value);
+                    return Number.isFinite(n) ? n : fallback;
+                };
+
+                const tempValue = readNumber(data.temperature, appState.lastGood.temperature);
+                const humValue = readNumber(data.humidity, appState.lastGood.humidity);
+                const voltageValue = readNumber(data.voltage ?? data.busVoltage ?? data.inaBusVoltage, appState.lastGood.voltage);
+                const currentValue = readNumber(data.current ?? data.inaCurrent, appState.lastGood.current);
+
+                if (Number.isFinite(tempValue)) appState.lastGood.temperature = tempValue;
+                if (Number.isFinite(humValue)) appState.lastGood.humidity = humValue;
+                if (Number.isFinite(voltageValue)) appState.lastGood.voltage = voltageValue;
+                if (Number.isFinite(currentValue)) appState.lastGood.current = currentValue;
+
+                const t = Number.isFinite(tempValue) ? tempValue.toFixed(2) : "--";
+                const h = Number.isFinite(humValue) ? humValue.toFixed(2) : "--";
+                const v = Number.isFinite(voltageValue) ? voltageValue.toFixed(2) : "--";
+                const c = Number.isFinite(currentValue) ? currentValue.toFixed(3) : "--";
+
+                document.getElementById("hum").innerText = h;
+                elTemp.innerText = t;
+                document.getElementById("voltage").innerText = v;
+                document.getElementById("current").innerText = c;
+
+                if (data.high) appState.settings.high = data.high;
+                if (data.low) appState.settings.low = data.low;
+                if (data.gas_id) appState.settings.gas = data.gas_id;
+
+                
+                [elTemp, elUnit, elBadge].forEach(el => {
+                    el.classList.remove("text-hot", "text-cold", "text-normal", "badge-hot", "badge-cold", "badge-normal");
+                });
+
+                if (!Number.isFinite(tempValue)) {
+                    elTemp.classList.add("text-cold");
+                    elUnit.classList.add("text-cold");
+                    elBadge.classList.add("badge-cold");
+                    elBadge.innerText = "DANG CHO DU LIEU";
+                } else if (tempValue > appState.settings.high) {
+                    elTemp.classList.add("text-hot");
+                    elUnit.classList.add("text-hot");
+                    elBadge.classList.add("badge-hot");
+                    elBadge.innerText = "CẢNH BÁO: QUÁ NHIỆT";
+                } else if (tempValue < appState.settings.low) {
+                    elTemp.classList.add("text-cold");
+                    elUnit.classList.add("text-cold");
+                    elBadge.classList.add("badge-cold");
+                    elBadge.innerText = "NHIỆT ĐỘ THẤP";
+                } else {
+                    elTemp.classList.add("text-normal");
+                    elUnit.classList.add("text-normal");
+                    elBadge.classList.add("badge-normal");
+                    elBadge.innerText = "TRẠNG THÁI ỔN ĐỊNH";
+                }
+
+                
+                const isAuto = (data.automode == 1);
+                document.getElementById("autoToggle").checked = isAuto;
+                document.getElementById("modeLabel").innerText = isAuto ? "AUTO" : "MAN";
+
+                
+                const btnFan = document.getElementById("btnFan");
+                if (btnFan) {
+                    if (isAuto) {
+                        btnFan.classList.add("disabled");
+                        if (data.fan == 1) {
+                            document.getElementById("fanStatus").innerText = "AUTO: ON";
+                            btnFan.classList.add("active");
+                        } else {
+                            document.getElementById("fanStatus").innerText = "AUTO: OFF";
+                            btnFan.classList.remove("active");
+                        }
+                    } else {
+                        btnFan.classList.remove("disabled");
+                        if (data.fan == 1) {
+                            btnFan.classList.add("active");
+                            document.getElementById("fanStatus").innerText = "ĐANG CHẠY";
+                        } else {
+                            btnFan.classList.remove("active");
+                            document.getElementById("fanStatus").innerText = "ĐẠ TẮT";
+                        }
+                    }
+                }
+
+                
+                const btnLight = document.getElementById("btnLight");
+                if (btnLight) {
+                    if (data.light == 1) {
+                        btnLight.classList.add("active");
+                        document.getElementById("lightStatus").innerText = "ĐANG BẬT";
+                    } else {
+                        btnLight.classList.remove("active");
+                        document.getElementById("lightStatus").innerText = "ĐÃ TẮT";
+                    }
+                }
+
+                if (Number.isFinite(tempValue) && Number.isFinite(humValue)) {
+                    chartManager.processNewData(tempValue, humValue);
+                }
+            },
+
+            openSettings: () => {
+                document.getElementById("inputHigh").value = appState.settings.high;
+                document.getElementById("inputLow").value = appState.settings.low;
+                document.getElementById("inputGas").value = appState.settings.gas;
+                document.getElementById("settingsModal").style.display = "flex";
+            },
+
+            closeSettings: () => document.getElementById("settingsModal").style.display = "none",
+
+            saveSettings: () => {
+                const h = parseFloat(document.getElementById("inputHigh").value);
+                const l = parseFloat(document.getElementById("inputLow").value);
+                const g = document.getElementById("inputGas").value;
+                if (h > l) {
+                    fetch('/savesettings?h=' + h + '&l=' + l + '&gas=' + encodeURIComponent(g))
+                        .then(res => { if (res.ok) { alert("Đã lưu!"); ui.closeSettings(); dataManager.fetchData(); } else alert("Lỗi!"); });
+                } else alert("Lỗi: Ngưỡng cao phải lớn hơn ngưỡng thấp!");
+            },
+
+            factoryReset: () => {
+                if (!confirm("Xóa WiFi đã lưu, Google Apps Script ID và khởi động lại ESP32 sau 3 giây?")) return;
+                const btn = document.getElementById("factoryResetBtn");
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerText = "ĐANG RESET SAU 3 GIÂY...";
+                }
+                fetch('/factoryreset')
+                    .then(res => {
+                        if (!res.ok) throw new Error("factory reset failed");
+                        return res.text();
+                    })
+                    .then(() => {
+                        setTimeout(() => {
+                            document.body.innerHTML = "<div style='font-family:Montserrat,Arial,sans-serif;padding:32px;text-align:center;color:#1e3a8a'><h2>ESP32 đang khởi động lại</h2><p>Sau vài giây, hãy kết nối vào WiFi cấu hình <b>HE THONG GIAM SAT</b>.</p></div>";
+                        }, 500);
+                    })
+                    .catch(() => {
+                        alert("Không gửi được lệnh reset!");
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.innerText = "RESET ESP32 / ĐỔI WIFI";
+                        }
+                    });
+            }
+        };
+
+        
+        const dataManager = {
+            fetchData: () => {
+                fetch('/readings', { cache: 'no-store' })
+                    .then(res => {
+                        if (!res.ok) throw new Error("readings http " + res.status);
+                        return res.json();
+                    })
+                    .then(data => ui.updateDashboard(data))
+                    .catch(e => {
+                        console.log(e);
+                        document.getElementById("updateTime").innerText = "Mat ket noi du lieu";
+                    });
+            },
+
+            restartInterval: () => {
+                if (appState.autoScroll.timer) clearInterval(appState.autoScroll.timer);
+                const sec = parseInt(document.getElementById("updateInterval").value);
+                appState.autoScroll.timer = setInterval(dataManager.fetchData, sec * 1000);
+                fetch('/savesettings?interval=' + sec);
+            }
+        };
+
+        
+        
+        window.toggleMode = () => {
+            const chk = document.getElementById("autoToggle");
+            const v = chk.checked ? 1 : 0;
+            
+            document.getElementById("modeLabel").innerText = v ? "AUTO" : "MAN";
+            const btn = document.getElementById("btnFan");
+            if (btn) {
+                if(v) { 
+                    btn.classList.add("disabled"); 
+                    document.getElementById("fanStatus").innerText = "AUTO...";
+                } else { 
+                    btn.classList.remove("disabled"); 
+                }
+            }
+
+            fetch('/setmode?auto=' + v).then(() => dataManager.fetchData())
+            .catch(() => { chk.checked = !v; dataManager.fetchData(); });
+        };
+
+        window.toggleFan = () => {
+            if (!document.getElementById("autoToggle").checked) {
+                const btn = document.getElementById("btnFan");
+                const txt = document.getElementById("fanStatus");
+                if (!btn || !txt) return;
+                const active = btn.classList.contains("active");
+
+                if(active) { btn.classList.remove("active"); txt.innerText = "ĐÃ TẮT"; }
+                else { btn.classList.add("active"); txt.innerText = "ĐANG CHẠY"; }
+
+                fetch('/togglefan').catch(() => { btn.classList.toggle("active"); txt.innerText = active ? "ĐANG CHẠY" : "ĐÃ TẮT"; });
+            }
+        };
+
+        window.toggleLight = () => {
+            const btn = document.getElementById("btnLight");
+            const txt = document.getElementById("lightStatus");
+            if (!btn || !txt) return;
+            const active = btn.classList.contains("active");
+
+            if(active) { btn.classList.remove("active"); txt.innerText = "ĐÃ TẮT"; }
+            else { btn.classList.add("active"); txt.innerText = "ĐANG BẬT"; }
+
+            fetch('/togglelight').catch(() => { btn.classList.toggle("active"); txt.innerText = active ? "ĐANG BẬT" : "ĐÃ TẮT"; });
+        };
+
+        window.ui = ui;
+        window.chartManager = chartManager;
+        window.dataManager = dataManager;
+
+        
+        window.onload = function () {
+            dataManager.fetchData();
+            try {
+                chartManager.init();
+            } catch (e) {
+                console.log("Chart init failed", e);
+            }
+            dataManager.restartInterval();
+        };
+    </script>
+</body>
+
+</html>
+)rawliteral";

@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="794" height="1123" viewBox="0 0 794 1123">
+  <defs>
+    <style>
+      .page { fill: #ffffff; }
+      .title { font-family: "Segoe UI", Arial, sans-serif; font-size: 34px; font-weight: 800; fill: #173b86; }
+      .subtitle { font-family: "Segoe UI", Arial, sans-serif; font-size: 18px; font-weight: 650; fill: #334155; }
+      .box-blue { fill: #eef6ff; stroke: #2563eb; stroke-width: 2.5; }
+      .box-green { fill: #ecfdf5; stroke: #16a34a; stroke-width: 2.5; }
+      .box-yellow { fill: #fff7ed; stroke: #f59e0b; stroke-width: 2.5; }
+      .box-red { fill: #fff1f2; stroke: #e11d48; stroke-width: 2.5; }
+      .box-note { fill: #f8fafc; stroke: #64748b; stroke-width: 2; }
+      .main-text { font-family: "Segoe UI", Arial, sans-serif; font-size: 22px; font-weight: 800; fill: #0f172a; }
+      .sub-text { font-family: "Segoe UI", Arial, sans-serif; font-size: 15px; font-weight: 600; fill: #475569; }
+      .note-text { font-family: "Segoe UI", Arial, sans-serif; font-size: 16px; font-weight: 700; fill: #334155; }
+      .footer { font-family: "Segoe UI", Arial, sans-serif; font-size: 16px; font-weight: 600; fill: #475569; }
+      .arrow { stroke: #1e3a8a; stroke-width: 3.4; fill: none; marker-end: url(#arrowHead); stroke-linecap: round; stroke-linejoin: round; }
+      .branch { stroke: #64748b; stroke-width: 2.8; fill: none; marker-end: url(#arrowSmall); stroke-linecap: round; stroke-linejoin: round; }
+      .loop { stroke: #64748b; stroke-width: 2.8; fill: none; marker-end: url(#arrowSmall); stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+    <marker id="arrowHead" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#1e3a8a"/>
+    </marker>
+    <marker id="arrowSmall" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M2,2 L8,5 L2,8 Z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <rect class="page" x="0" y="0" width="794" height="1123"/>
+
+  <text class="title" x="397" y="62" text-anchor="middle">LUỒNG HOẠT ĐỘNG DỰ ÁN</text>
+  <text class="subtitle" x="397" y="96" text-anchor="middle">Data Logger ESP32-C6 - AHT30 - OLED - INA226 - Google Sheet</text>
+
+  <rect class="box-blue" x="179" y="130" width="436" height="76" rx="18"/>
+  <text class="main-text" x="397" y="160" text-anchor="middle">1. ESP32-C6 KHỞI ĐỘNG</text>
+  <text class="sub-text" x="397" y="186" text-anchor="middle">Bật chương trình, watchdog và chuẩn bị hệ thống</text>
+
+  <path class="arrow" d="M397 206 L397 236"/>
+
+  <rect class="box-green" x="139" y="236" width="516" height="76" rx="18"/>
+  <text class="main-text" x="397" y="266" text-anchor="middle">2. KHỞI TẠO PHẦN CỨNG</text>
+  <text class="sub-text" x="397" y="292" text-anchor="middle">OLED hiển thị - AHT30 đo môi trường - INA226 đo nguồn</text>
+
+  <path class="arrow" d="M397 312 L397 342"/>
+
+  <rect class="box-yellow" x="139" y="342" width="516" height="76" rx="18"/>
+  <text class="main-text" x="397" y="372" text-anchor="middle">3. KIỂM TRA WIFI ĐÃ LƯU</text>
+  <text class="sub-text" x="397" y="398" text-anchor="middle">Có WiFi thì kết nối, chưa có thì mở trang cấu hình</text>
+
+  <path class="branch" d="M397 418 L397 452 L205 452 L205 530"/>
+  <path class="branch" d="M397 418 L397 452 L589 452 L589 530"/>
+
+  <rect class="box-green" x="60" y="530" width="290" height="82" rx="18"/>
+  <text class="main-text" x="205" y="562" text-anchor="middle">4A. KẾT NỐI WIFI</text>
+  <text class="sub-text" x="205" y="588" text-anchor="middle">Thiết bị vào mạng nội bộ</text>
+
+  <rect class="box-red" x="444" y="530" width="290" height="82" rx="18"/>
+  <text class="main-text" x="589" y="562" text-anchor="middle">4B. CẤU HÌNH LẦN ĐẦU</text>
+  <text class="sub-text" x="589" y="588" text-anchor="middle">Phát WiFi HE THONG GIAM SAT</text>
+
+  <path class="branch" d="M205 612 L205 635 L360 635 L360 661"/>
+  <path class="branch" d="M589 612 L589 635 L434 635 L434 661"/>
+
+  <rect class="box-blue" x="139" y="661" width="516" height="82" rx="18"/>
+  <text class="main-text" x="397" y="694" text-anchor="middle">5. ĐỌC DỮ LIỆU CẢM BIẾN</text>
+  <text class="sub-text" x="397" y="720" text-anchor="middle">Nhiệt độ - độ ẩm - điện áp - dòng điện</text>
+
+  <path class="arrow" d="M397 743 L397 773"/>
+
+  <rect class="box-green" x="139" y="773" width="516" height="82" rx="18"/>
+  <text class="main-text" x="397" y="806" text-anchor="middle">6. HIỂN THỊ VÀ THEO DÕI</text>
+  <text class="sub-text" x="397" y="832" text-anchor="middle">OLED hiển thị nhanh, web hiển thị đầy đủ</text>
+
+  <path class="arrow" d="M397 855 L397 885"/>
+
+  <rect class="box-yellow" x="139" y="885" width="516" height="82" rx="18"/>
+  <text class="main-text" x="397" y="918" text-anchor="middle">7. GỬI GOOGLE SHEET</text>
+  <text class="sub-text" x="397" y="944" text-anchor="middle">Lưu lịch sử theo thời gian để xem lại dữ liệu</text>
+
+  <path class="loop" d="M655 926 L690 926 L690 702 L655 702"/>
+  <rect class="box-note" x="635" y="790" width="116" height="62" rx="14"/>
+  <text class="note-text" x="693" y="815" text-anchor="middle">Lặp lại</text>
+  <text class="note-text" x="693" y="839" text-anchor="middle">theo chu kỳ</text>
+
+  <text class="footer" x="397" y="1032" text-anchor="middle">Tổng quan: đo môi trường và nguồn, hiển thị tại chỗ, xem qua web và ghi log lên Google Sheet.</text>
+  <text class="footer" x="397" y="1060" text-anchor="middle">Bản khuyến nghị phát triển tiếp: mainV2.</text>
+</svg>
